@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Background Remover</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #00ffcc;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+            margin-bottom: 20px;
+        }
+
+        /* Container for Form and Images */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        /* Form Styles */
+        #upload-form {
+            background-color: #222;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #00ffcc;
+            color: #000;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #00e6b8;
+            transform: scale(1.05);
+        }
+
+        button[type="submit"] {
+            background-color: #00ffcc;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #00e6b8;
+            transform: scale(1.05);
+        }
+
+        /* Loading Animation */
+        #loading {
+            display: none;
+            font-size: 1.2rem;
+            color: #ffcc00;
+            margin-top: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Image Comparison Container */
+        .image-comparison {
+            display: flex;
+            flex-direction: row; /* Align images horizontally */
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+            overflow-y: auto; /* Make it scrollable */
+            max-height: 70vh; /* Set a fixed height */
+        }
+
+        .image-comparison img {
+            max-width: 30%; /* Smaller size for aesthetic look */
+            height: auto;
+            border-radius: 10px;
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Download Link Styles */
+        a {
+            display: inline-block;
+            margin: 20px;
+            background-color: #00ffcc;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #00e6b8;
+            transform: scale(1.05);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload an Image to Remove Background</h1>
+        <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
+            <label for="file-upload" class="custom-file-upload">
+                Choose Image
+            </label>
+            <input id="file-upload" type="file" name="image" accept="image/*" required onchange="previewImage(event)">
+            <button type="submit">Remove Background</button>
+        </form>
+        <div id="loading">Removing background, please wait...</div>
+
+        <!-- Image Comparison Section -->
+        <div class="image-comparison">
+            <img id="uploaded-image" src="" alt="Uploaded Image" style="display:none;">
+            {% if output_image %}
+                <img id="output-image" src="data:image/png;base64,{{ output_image }}" alt="Output Image">
+            {% endif %}
+        </div>
+
+        {% if output_image %}
+            <a href="data:image/png;base64,{{ output_image }}" download="output.png">Download Processed Image</a>
+        {% endif %}
+    </div>
+
+    <script>
+        let loadingPercentage = 0;
+        const loadingInterval = setInterval(() => {
+            if (loadingPercentage < 100) {
+                loadingPercentage += 10; // Simulate loading progress
+                document.getElementById('loading').innerText = `Removing background, please wait... ${loadingPercentage}%`;
+            } else {
+                clearInterval(loadingInterval);
+            }
+        }, 1000);
+
+        function previewImage(event) {
+            const image = document.getElementById('uploaded-image');
+            image.src = URL.createObjectURL(event.target.files[0]);
+            image.style.display = 'block';
+        }
+
+        document.getElementById('upload-form').onsubmit = function() {
+            document.getElementById('loading').style.display = 'block';
+        };
+    </script>
+</body>
+</html>
